@@ -374,6 +374,14 @@ function displayQuestion() {
 
     updateQuickNavigation();
     updateScoreDisplay();
+    scrollToQuestion();
+}
+
+function scrollToQuestion() {
+    const questionCard = document.querySelector('.question-card');
+    if (questionCard) {
+        questionCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 }
 
 function displayOptions(question) {
@@ -481,7 +489,6 @@ function previousQuestion() {
     if (app.currentQuestion > 0) {
         app.currentQuestion -= 1;
         displayQuestion();
-        window.scrollTo(0, 0);
     }
 }
 
@@ -494,7 +501,6 @@ function nextQuestion() {
 
         app.currentQuestion += 1;
         displayQuestion();
-        window.scrollTo(0, 0);
     }
 }
 
@@ -524,7 +530,6 @@ function updateQuickNavigation() {
         button.addEventListener('click', () => {
             app.currentQuestion = index;
             displayQuestion();
-            window.scrollTo(0, 0);
         });
 
         container.appendChild(button);
