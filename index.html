@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS MLA-C01 Certification Test</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">AWS MLA-C01</div>
+                <h1>Machine Learning Certification Test</h1>
+                <p class="subtitle">Practice exam for AWS Certified Machine Learning - Associate</p>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div id="homeScreen" class="screen active">
+                <div class="welcome-container">
+                    <h2>Welcome to the Practice Exam</h2>
+                    <p>Test your knowledge on AWS Machine Learning concepts and services.</p>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalQuestions">--</div>
+                            <div class="stat-label">Total Questions</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="completedTests">0</div>
+                            <div class="stat-label">Tests Completed</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="bestScore">--</div>
+                            <div class="stat-label">Best Score</div>
+                        </div>
+                    </div>
+
+                    <div class="mode-selector">
+                        <h3>Select Exam Mode</h3>
+                        <div class="mode-grid">
+                            <button class="mode-card active" data-mode="all">
+                                <span class="mode-title">All Questions Practice</span>
+                                <span class="mode-description">Untimed practice across the full question bank with instant answer feedback.</span>
+                            </button>
+                            <button class="mode-card" data-mode="mock">
+                                <span class="mode-title">Timed Mock Exam</span>
+                                <span class="mode-description">65 random questions with AWS MLA-C01 domain weightage and a 130-minute timer.</span>
+                            </button>
+                            <button class="mode-card" data-mode="domain">
+                                <span class="mode-title">Single Domain Practice</span>
+                                <span class="mode-description">Pick one content domain and practice all questions from that category.</span>
+                            </button>
+                        </div>
+
+                        <div id="domainSelector" class="domain-selector hidden">
+                            <label for="domainSelect">Choose a domain</label>
+                            <select id="domainSelect"></select>
+                        </div>
+                    </div>
+
+                    <div class="start-options">
+                        <button id="startBtn" class="btn btn-primary btn-lg">Start New Test</button>
+                        <button id="resumeBtn" class="btn btn-secondary btn-lg" style="display: none;">Resume Test</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="quizScreen" class="screen">
+                <div class="quiz-container">
+                    <div class="progress-section">
+                        <div class="progress-info">
+                            <span id="questionCounter">1 / --</span>
+                            <span id="sessionTitle">Practice Session</span>
+                            <span id="timerDisplay" style="display: none;">Time Left: --:--</span>
+                            <span id="scoreDisplay">Score: 0</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div id="progressFill" class="progress-fill"></div>
+                        </div>
+                    </div>
+
+                    <div class="question-card">
+                        <div class="question-header">
+                            <span id="questionNumber" class="question-number">Question 1</span>
+                            <span class="question-type" id="questionType"></span>
+                        </div>
+                        <h2 id="questionText" class="question-text"></h2>
+                        <p id="questionCategory" class="question-category"></p>
+                    </div>
+
+                    <div id="optionsContainer" class="options-container"></div>
+                    <div id="feedbackContainer" class="feedback-panel" style="display: none;"></div>
+
+                    <div class="navigation">
+                        <button id="prevBtn" class="btn btn-outline" disabled>&larr; Previous</button>
+                        <button id="submitAnswerBtn" class="btn btn-success" style="display: none;">Submit Answer</button>
+                        <button id="nextBtn" class="btn btn-outline">Next &rarr;</button>
+                        <button id="submitBtn" class="btn btn-success" style="display: none;">Submit Test</button>
+                    </div>
+
+                    <div class="quick-nav">
+                        <h4>Quick Navigation</h4>
+                        <div id="quickNavContainer" class="quick-nav-grid"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="resultsScreen" class="screen">
+                <div class="results-container">
+                    <div class="results-header">
+                        <h2>Test Complete!</h2>
+                        <div class="score-circle" id="scoreCircle">
+                            <div class="score-value">
+                                <span id="finalScore">0</span>%
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="results-stats">
+                        <div class="result-stat">
+                            <span class="stat-label">Correct Answers</span>
+                            <span class="stat-value" id="correctCount">0</span>
+                        </div>
+                        <div class="result-stat">
+                            <span class="stat-label">Total Questions</span>
+                            <span class="stat-value" id="totalCount">0</span>
+                        </div>
+                        <div class="result-stat">
+                            <span class="stat-label">Accuracy</span>
+                            <span class="stat-value" id="accuracy">0%</span>
+                        </div>
+                    </div>
+
+                    <div class="results-actions">
+                        <button id="reviewBtn" class="btn btn-primary">Review Answers</button>
+                        <button id="restartBtn" class="btn btn-secondary">Start New Test</button>
+                        <button id="downloadBtn" class="btn btn-outline">Download Results</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="reviewScreen" class="screen">
+                <div class="review-container">
+                    <h2>Answer Review</h2>
+                    <div class="review-filters">
+                        <button class="filter-btn active" data-filter="all">All</button>
+                        <button class="filter-btn" data-filter="correct">Correct</button>
+                        <button class="filter-btn" data-filter="incorrect">Incorrect</button>
+                    </div>
+                    <div id="reviewContainer" class="review-items"></div>
+                    <div class="review-actions">
+                        <button id="backFromReviewBtn" class="btn btn-secondary">Back to Results</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2024 AWS MLA-C01 Practice Exam | Study Material for Certification</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
