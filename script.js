@@ -97,6 +97,8 @@ function setupEventListeners() {
     document.getElementById('domainSelect').addEventListener('change', (event) => {
         app.selectedDomain = event.target.value;
     });
+    document.getElementById('feedbackContainer').addEventListener('click', handleExplanationToggle);
+    document.getElementById('reviewContainer').addEventListener('click', handleExplanationToggle);
 
     document.querySelectorAll('.filter-btn').forEach((btn) => {
         btn.addEventListener('click', (event) => {
@@ -645,7 +647,10 @@ function updateReviewScreen() {
             <div class="review-question">${question.question}</div>
             <div class="review-category">${question.category || ''}</div>
             <div class="review-options">${optionsHTML}</div>
-            <div class="review-explanation"><strong>Explanation:</strong><br>${question.explanation}</div>
+            <div class="review-item-actions">
+                <button class="explanation-toggle" type="button" aria-expanded="false">Show Explanation</button>
+            </div>
+            <div class="review-explanation hidden"><strong>Explanation:</strong><br>${question.explanation || 'No explanation provided.'}</div>
         `;
 
         container.appendChild(reviewItem);
@@ -694,9 +699,28 @@ function renderFeedback() {
     container.style.display = 'block';
     container.innerHTML = `
         <div class="feedback-title">${isCorrect ? 'Correct Answer' : 'Incorrect Answer'}</div>
-        <div class="feedback-answer">Correct option: ${question.correct_answer}</div>
-        <div class="feedback-explanation">${question.explanation}</div>
+        <div class="feedback-summary">
+            <div class="feedback-answer">Correct option: ${question.correct_answer}</div>
+            <button class="explanation-toggle" type="button" aria-expanded="false">Show Explanation</button>
+        </div>
+        <div class="explanation-content hidden">${question.explanation || 'No explanation provided.'}</div>
     `;
+}
+
+function handleExplanationToggle(event) {
+    const toggleButton = event.target.closest('.explanation-toggle');
+    if (!toggleButton) {
+        return;
+    }
+
+    const content = toggleButton.parentElement.nextElementSibling;
+    if (!content) {
+        return;
+    }
+
+    const isHidden = content.classList.toggle('hidden');
+    toggleButton.textContent = isHidden ? 'Show Explanation' : 'Hide Explanation';
+    toggleButton.setAttribute('aria-expanded', String(!isHidden));
 }
 
 function updateScoreDisplay() {
