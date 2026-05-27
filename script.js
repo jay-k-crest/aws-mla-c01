@@ -10,20 +10,6 @@ const EXAM_CONFIG = {
     },
 };
 
-const TOPIC_TO_DOMAIN_MAP = {
-    'Section 2: Data Ingestion and Storage': 'Data Preparation for Machine Learning (ML)',
-    'Section 3: Data Transformation, Integrity, and Feature Engineering': 'Data Preparation for Machine Learning (ML)',
-    'Section 4: AWS Managed AI Services': 'ML Model Development',
-    'Section 5: SageMaker Built-In Algorithms': 'ML Model Development',
-    'Section 6: Model Training, Tuning, and Evaluation': 'ML Model Development',
-    'Section 7: Generative AI Model Fundamentals': 'ML Model Development',
-    'Section 8: Building Generative AI Applications with Bedrock': 'ML Model Development',
-    'Section 9: Machine Learning Operations (MLOps) with AWS': 'Deployment and Orchestration of ML Workflows',
-    'Section 10: Security, Identity, and Compliance': 'ML Solution Monitoring, Maintenance, and Security',
-    'Section 11: Management and Governance': 'ML Solution Monitoring, Maintenance, and Security',
-    'Section 12: Machine Learning Best Practices': 'ML Solution Monitoring, Maintenance, and Security',
-};
-
 const app = {
     allQuestions: [],
     questions: [],
@@ -50,33 +36,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function loadQuestions() {
     try {
-        const [categorizedQuestions, importedQuestions] = await Promise.all([
-            fetchQuestionsFile('questions_categorized.json'),
-            fetchQuestionsFile('questions.json', true),
-        ]);
-
-        app.allQuestions = dedupeQuestions([
-            ...categorizedQuestions.map(normalizeCategorizedQuestion),
-            ...importedQuestions.map(normalizeImportedQuestion),
-        ]);
+        const uniqueQuestions = await fetchQuestionsFile('unique_questions.json');
+        app.allQuestions = dedupeQuestions(uniqueQuestions.map(normalizeUniqueQuestion));
         app.selectedDomain = Object.keys(EXAM_CONFIG.domainWeights)[0];
 
         document.getElementById('totalQuestions').textContent = app.allQuestions.length;
         populateDomainSelect();
     } catch (error) {
         console.error('Error loading questions:', error);
-        showErrorMessage('Failed to load question files. Please ensure questions_categorized.json and questions.json are in the same directory.');
+        showErrorMessage('Failed to load unique_questions.json. Please ensure the file is in the same directory as index.html.');
     }
 }
 
-async function fetchQuestionsFile(filename, allowMissing = false) {
+async function fetchQuestionsFile(filename) {
     const response = await fetch(filename);
 
     if (!response.ok) {
-        if (allowMissing && response.status === 404) {
-            return [];
-        }
-
         throw new Error(`Failed to load ${filename}`);
     }
 
@@ -242,30 +217,17 @@ function buildWeightedMockExam() {
     return shuffleArray(selectedQuestions);
 }
 
-function normalizeCategorizedQuestion(question) {
+function normalizeUniqueQuestion(question) {
     return {
-        question: question.question,
-        options: Array.isArray(question.options) ? question.options : [],
-        correct_answer: normalizeAnswerValue(question.correct_answer),
+        question: question.question || '',
+        options: normalizeOptionsObject(question.mcqs || question.options),
+        correct_answer: normalizeAnswerValue(question.answer || question.correct_answer),
         explanation: question.explanation || '',
-        category: question.category || inferDomainFromTopic(question.topic),
-        source: 'questions_categorized.json',
-        sourceTopic: question.topic || '',
-    };
-}
-
-function normalizeImportedQuestion(question) {
-    return {
-        question: question.question,
-        options: normalizeOptionsObject(question.options),
-        correct_answer: normalizeAnswerValue(question.answer),
-        explanation: question.explanation || '',
-        category: inferDomainFromTopic(question.topic),
-        source: 'questions.json',
-        sourceTopic: question.topic || '',
-        question_id: question.question_id || '',
-        question_type: question.question_type || '',
-        reference_link: question.reference_link || '',
+        category: normalizeCategoryName(question.category),
+        source: 'unique_questions.json',
+        sourceTopic: question.category || '',
+        notes: question.notes || '',
+        original_index: question.original_index || '',
     };
 }
 
@@ -296,8 +258,17 @@ function normalizeAnswerValue(answer) {
         .join(',');
 }
 
-function inferDomainFromTopic(topic) {
-    return TOPIC_TO_DOMAIN_MAP[topic] || 'ML Model Development';
+function normalizeCategoryName(category) {
+    const categoryMap = {
+        'Data Preparation for ML': 'Data Preparation for Machine Learning (ML)',
+        'ML Model Development': 'ML Model Development',
+        'Deployment & Orchestration of ML Workflows': 'Deployment and Orchestration of ML Workflows',
+        'Deployment and Orchestration of ML Workflows': 'Deployment and Orchestration of ML Workflows',
+        'ML Solution Monitoring, Maintenance & Security': 'ML Solution Monitoring, Maintenance, and Security',
+        'ML Solution Monitoring, Maintenance, and Security': 'ML Solution Monitoring, Maintenance, and Security',
+    };
+
+    return categoryMap[category] || category || 'ML Model Development';
 }
 
 function dedupeQuestions(questions) {
